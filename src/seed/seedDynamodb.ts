@@ -9,7 +9,7 @@ import UserCourseProgress from "../models/userCourseProgressModel";
 import dotenv from "dotenv";
 import { dnsPrefetchControl } from "helmet";
 import { log } from "console";
-
+// sourceMapsEnabled
 dotenv.config();
 
 let client : DynamoDBClient;
