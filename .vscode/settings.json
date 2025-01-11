@@ -1,0 +1,25 @@
+{
+  "serverlessConsole.services": [
+    {
+      "type": "dynamodb",
+      "title": "Course",
+      "tableName": "Course",
+      "region": "local",
+      "endpoint": "http://localhost:8000"
+    },
+    {
+      "type": "dynamodb",
+      "title": "Transaction",
+      "tableName": "Transaction",
+      "region": "local",
+      "endpoint": "http://localhost:8000"
+    },
+    {
+      "type": "dynamodb",
+      "title": "UserCourseProgress",
+      "tableName": "UserCourseProgress",
+      "region": "local",
+      "endpoint": "http://localhost:8000"
+    }
+  ]
+}
