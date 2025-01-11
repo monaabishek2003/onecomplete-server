@@ -7,6 +7,7 @@ import morgan from "morgan";
 import * as dynamoose from "dynamoose";
 
 // ROUTE IMPORTS
+import courseRoutes from "./routes/courseRoutes"
 
 // CONFIGURATION
 dotenv.config();
@@ -29,6 +30,7 @@ app.use(cors());
 app.get("/",(req,res)=>{
   res.send("Hello World")
 });
+app.use("/courses",courseRoutes)
 
 const port = process.env.port || 5000;
 
@@ -37,6 +39,5 @@ if(!isProduction){
     console.log("<----SERVER RUNNING ON PORT 5000---->");
   })
 }
-
 
 

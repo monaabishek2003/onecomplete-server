@@ -1,3 +1,4 @@
 node_modules
 .env
-./dist
+.vscode
+shared-local-instance.db

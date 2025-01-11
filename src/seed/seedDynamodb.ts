@@ -1,50 +1,46 @@
-import {
-  DynamoDBClient,
-  DeleteTableCommand,
-  ListTablesCommand,
-} from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, DeleteTableCommand, ListTablesCommand} from "@aws-sdk/client-dynamodb";
 import fs from "fs";
-import path from "path";
+import path, { resolve } from "path";
 import dynamoose from "dynamoose";
 import pluralize from "pluralize";
 import Transaction from "../models/transactionModel";
 import Course from "../models/courseModel";
 import UserCourseProgress from "../models/userCourseProgressModel";
 import dotenv from "dotenv";
-
+import { dnsPrefetchControl } from "helmet";
+import { log } from "console";
+// sourceMapsEnabled
 dotenv.config();
-let client: DynamoDBClient;
 
-/* DynamoDB Configuration */
+let client : DynamoDBClient;
+
 const isProduction = process.env.NODE_ENV === "production";
 
-if (!isProduction) {
+if(!isProduction){
   dynamoose.aws.ddb.local();
   client = new DynamoDBClient({
-    endpoint: "http://localhost:8000",
-    region: "us-east-2",
-    credentials: {
-      accessKeyId: "dummyKey123",
-      secretAccessKey: "dummyKey123",
-    },
-  });
+    endpoint : "http://localhost:8000",
+    region: process.env.AWS_REGION ,
+    credentials : {
+      accessKeyId : process.env.AWS_ACCESS_KEY_ID || "",
+      secretAccessKey : process.env.AWS_SERECT_ACCESS_KEY || ""
+    }
+  })
 } else {
   client = new DynamoDBClient({
-    region: process.env.AWS_REGION || "us-east-2",
-  });
+    region : process.env.AWS_REGION || "global"
+  })
 }
 
-/* DynamoDB Suppress Tag Warnings */
+
 const originalWarn = console.warn.bind(console);
 console.warn = (message, ...args) => {
-  if (
-    !message.includes("Tagging is not currently supported in DynamoDB Local")
-  ) {
+  if (!message.includes("Tagging is not currently supported in DynamoDB Local")) {
     originalWarn(message, ...args);
   }
 };
 
-async function createTables() {
+async function createTables () {
   const models = [Transaction, UserCourseProgress, Course];
 
   for (const model of models) {
@@ -57,37 +53,41 @@ async function createTables() {
     });
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
       await table.initialize();
-      console.log(`Table created and initialized: ${tableName}`);
-    } catch (error: any) {
+      console.log(`Table created and initialized : ${tableName}`);
+    } catch (error : any) { 
       console.error(
-        `Error creating table ${tableName}:`,
+        `Error Creating Table ${tableName}`,
         error.message,
         error.stack
-      );
+      )
     }
   }
 }
 
-async function seedData(tableName: string, filePath: string) {
-  const data: { [key: string]: any }[] = JSON.parse(
-    fs.readFileSync(filePath, "utf8")
+async function seedData(tableName : string, filePath : string){
+  console.log(tableName,filePath);
+  
+  const data : {[key : string] : any}[] = JSON.parse(
+    fs.readFileSync(filePath,"utf-8")
   );
 
   const formattedTableName = pluralize.singular(
     tableName.charAt(0).toUpperCase() + tableName.slice(1)
-  );
+  )
 
-  console.log(`Seeding data to table: ${formattedTableName}`);
-
-  for (const item of data) {
-    try {
+  console.log(`Seeding Data to Table : ${formattedTableName}`);
+  
+  for(const item of data){
+    try{
       await dynamoose.model(formattedTableName).create(item);
-    } catch (err) {
+    } catch (error: any) {
       console.error(
         `Unable to add item to ${formattedTableName}. Error:`,
-        JSON.stringify(err, null, 2)
+        error.message,
+        error.stack,
+        JSON.stringify(error, null, 2)
       );
     }
   }
@@ -98,16 +98,17 @@ async function seedData(tableName: string, filePath: string) {
   );
 }
 
-async function deleteTable(baseTableName: string) {
-  let deleteCommand = new DeleteTableCommand({ TableName: baseTableName });
+async function deleteTable(baseTableName : string){
+  let deleteCommand = new DeleteTableCommand({TableName : baseTableName});
+
   try {
-    await client.send(deleteCommand);
-    console.log(`Table deleted: ${baseTableName}`);
-  } catch (err: any) {
-    if (err.name === "ResourceNotFoundException") {
+    await client.send(deleteCommand)
+    console.log(`Table deleted :${baseTableName}`)
+  }catch(error: any){
+    if(error.name === "ResourceNotFoundException"){
       console.log(`Table does not exist: ${baseTableName}`);
-    } else {
-      console.error(`Error deleting table ${baseTableName}:`, err);
+    }else {
+      console.error(`Error deleting table ${baseTableName}`, error);
     }
   }
 }
@@ -124,7 +125,7 @@ async function deleteAllTables() {
   }
 }
 
-export default async function seed() {
+export default async function seed(){
   await deleteAllTables();
   await new Promise((resolve) => setTimeout(resolve, 1000));
   await createTables();
@@ -132,7 +133,7 @@ export default async function seed() {
   const seedDataPath = path.join(__dirname, "./data");
   const files = fs
     .readdirSync(seedDataPath)
-    .filter((file) => file.endsWith(".json"));
+    .filter(file => file.endsWith(".json"));
 
   for (const file of files) {
     const tableName = path.basename(file, ".json");
