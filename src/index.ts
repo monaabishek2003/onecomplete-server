@@ -9,6 +9,7 @@ import { createClerkClient, clerkMiddleware } from "@clerk/express";
 
 // ROUTE IMPORTS
 import courseRoutes from "./routes/courseRoutes"
+import userClerkRoutes from "./routes/userClerkRoutes";
 
 // CONFIGURATION
 dotenv.config();
@@ -32,11 +33,11 @@ app.use(cors());
 app.use(clerkMiddleware())
 
 // ROUTES
-
 app.get("/",(req,res)=>{
   res.send("Hello World")
 });
 app.use("/courses",courseRoutes)
+app.use("users/clerk", userClerkRoutes)
 
 const port = process.env.port || 5000;
 
