@@ -7,6 +7,7 @@ export const updateUser = async (
 ): Promise<void>  => {
   const { userId } = req.params;
   const userData = req.body;
+  console.log(userData)
   try{
     const user = await clerkClient.users.updateUserMetadata(userId, {
       publicMetadata: {
@@ -14,9 +15,9 @@ export const updateUser = async (
         settings: userData.publicMetadata.settings
       },
     })
-
     res.json({message: "User Updated Successfully", data: user});
   }catch(error){
+    console.log(error);
     res.status(500).json({message: "Error Updating User", error})
   }
 }
