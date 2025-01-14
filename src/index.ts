@@ -7,6 +7,7 @@ import morgan from "morgan";
 import * as dynamoose from "dynamoose";
 import { createClerkClient, clerkMiddleware, requireAuth } from "@clerk/express";
 import { NextFunction } from "express";
+
 // ROUTE IMPORTS
 import courseRoutes from "./routes/courseRoutes"
 import userClerkRoutes from "./routes/userClerkRoutes";
@@ -36,8 +37,10 @@ app.use(clerkMiddleware())
 app.get("/",(req,res)=>{
   res.send("Hello World")
 });
+
 app.use("/courses/",courseRoutes)
 app.use("/users/clerk", requireAuth(), userClerkRoutes);
+
 
 const port = process.env.port || 5000;
 

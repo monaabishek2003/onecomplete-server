@@ -7,6 +7,7 @@ export const updateUser = async (
 ): Promise<void>  => {
   const { userId } = req.params;
   const userData = req.body;
+
   console.log(userData)
   try{
     const user = await clerkClient.users.updateUserMetadata(userId, {
