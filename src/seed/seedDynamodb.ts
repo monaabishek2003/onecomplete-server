@@ -19,7 +19,7 @@ const isProduction = process.env.NODE_ENV === "production";
 if(!isProduction){
   dynamoose.aws.ddb.local();
   client = new DynamoDBClient({
-    endpoint : "http://localhost:8000",
+    endpoint : "https://n13q8hdl-8000.inc1.devtunnels.ms/",
     region: process.env.AWS_REGION ,
     credentials : {
       accessKeyId : process.env.AWS_ACCESS_KEY_ID || "",

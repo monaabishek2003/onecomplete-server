@@ -17,7 +17,7 @@ dotenv.config();
 
 const isProduction = process.env.NODE_ENV === "production";
 
-if(!isProduction) dynamoose.aws.ddb.local();
+if(!isProduction) dynamoose.aws.ddb.local("https://n13q8hdl-8000.inc1.devtunnels.ms/");
 
 export const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY
@@ -39,7 +39,8 @@ app.get("/",(req,res)=>{
 });
 
 app.use("/courses/",courseRoutes)
-app.use("/users/clerk", requireAuth(), userClerkRoutes);
+app.use("/users/clerk", requireAuth(), userClerkRoutes);\
+app.use("/transactions",requireAuth(),transactionRoutes)
 
 
 const port = process.env.port || 5000;
